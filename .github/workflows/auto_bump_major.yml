@@ -1,4 +1,4 @@
-name: auto_bump
+name: auto_bump_major
 
 on:
   workflow_dispatch:
