@@ -1,0 +1,34 @@
+name: auto_bump_major
+
+on:
+  workflow_dispatch:
+
+jobs:
+  auto_bump_major:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+
+      - name: Install poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: 1.6.1
+
+      - name: Set Environment Variables
+        shell: bash
+        run: |
+          echo "PACKAGE_VERSION=$(poetry version --dry-run -s)" >> $GITHUB_ENV
+          echo "BUMP_MAJOR_VERSION=$(poetry version major --dry-run -s)" >> $GITHUB_ENV
+
+      - name: End
+        shell: bash
+        run: |
+          echo "End"
+      
