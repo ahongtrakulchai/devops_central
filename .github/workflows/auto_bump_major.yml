@@ -31,16 +31,12 @@ jobs:
         shell: bash
         run: |
           poetry version premajor
-          
-      - name: Checkout release branch of repository
-        uses: actions/checkout@v3      
-        with:
-          ref: release/${{ env.BUMP_MAJOR_VERSION }}
-        
-      - name: Commit and push 
+
+      - name: Commit and push to release branch
         run: |
-          git config --global user.name 'DevOps'
-          git config --global user.email 'DevOps@users.noreply.github.com'
+          git config --global user.name "DevOps"
+          git config --global user.email "DevOps@users.noreply.github.com"
+          git checkout -b "release/${{ env.BUMP_MAJOR_VERSION }}"
           git commit -am "Auto-bump premajor from package version ${{ env.PACKAGE_VERSION }} to ${{ env.BUMP_MAJOR_VERSION }}"
           git push
 
