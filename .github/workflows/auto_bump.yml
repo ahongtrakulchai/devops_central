@@ -1,10 +1,18 @@
-name: auto_bump_major
+name: auto_bump
 
 on:
   workflow_dispatch:
-
+    inputs:
+      name: 
+      type: choice
+      description: Bumping version to
+      options:
+      - premajor
+      - preminor
+      - patch
+      default: premajor
 jobs:
-  auto_bump_major:
+  auto_bump:
     runs-on: ubuntu-20.04
 
     steps:
