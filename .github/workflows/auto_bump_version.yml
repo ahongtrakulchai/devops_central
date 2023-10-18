@@ -46,6 +46,7 @@ jobs:
       run: |
         git config --global user.name "DevOps"
         git config --global user.email "DevOps@users.noreply.github.com"
+        git push -d origin "release/${{ env.RELEASE_VERSION }}"
         git checkout -b "release/${{ env.RELEASE_VERSION }}"
         git commit -am "Auto-bump prelease from package version ${{ env.PACKAGE_VERSION }} to ${{ env.PRERELEASE_VERSION }}"
         git push -u origin "release/${{ env.RELEASE_VERSION }}"
