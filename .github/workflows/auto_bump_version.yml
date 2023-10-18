@@ -3,7 +3,7 @@ name: auto_bump_version
 on:
   workflow_dispatch:
     inputs:
-      name: 
+      bump_version: 
         type: choice
         description: Bumping version to
         options:
@@ -32,24 +32,33 @@ jobs:
     - name: Set environment variables
       shell: bash
       run: |
-        echo "PACKAGE_VERSION=$(poetry version --dry-run -s)" >> $GITHUB_ENV
-        echo "PRERELEASE_VERSION=$(poetry version premajor --dry-run -s)" >> $GITHUB_ENV
-        echo "RELEASE_VERSION=$(poetry version major --dry-run -s)" >> $GITHUB_ENV
+        echo "CURRENT_VERSION=$(poetry version --dry-run -s)" >> $GITHUB_ENV
+        echo "BUMP_VERSION=$(poetry version ${{ github.event.inputs.bump_version }} --dry-run -s)" >> $GITHUB_ENV
+        echo "RELEASE_VERSION=$(poetry version ${{ github.event.inputs.bump_version=='premajor' && 'major' || 'minor' }} --dry-run -s)" >> $GITHUB_ENV
 
-    - name: Bump package version to prelease version 
+    - name: Bump package version to ${{ github.event.inputs.bump_version }}
       shell: bash
       run: |
         poetry self add poetry-bumpversion
-        poetry version premajor
+        poetry version ${{ github.event.inputs.bump_version }}
 
     - name: Commit and push to release branch
+      if: ${{ github.event.inputs.bump_version != 'patch' }}
       run: |
         git config --global user.name "DevOps"
         git config --global user.email "DevOps@users.noreply.github.com"
         git push -d origin "release/${{ env.RELEASE_VERSION }}"
         git checkout -b "release/${{ env.RELEASE_VERSION }}"
-        git commit -am "Auto-bump prelease from package version ${{ env.PACKAGE_VERSION }} to ${{ env.PRERELEASE_VERSION }}"
+        git commit -am "Bumping version to ${{ github.event.inputs.bump_version }} (${{ env.CURRENT_VERSION }} to ${{ env.BUMP_VERSION }})"
         git push -u origin "release/${{ env.RELEASE_VERSION }}"
+
+    - name: Commit and push to main branch (hotfix)
+      if: ${{ github.event.inputs.bump_version == 'patch' }}
+      run: |
+        git config --global user.name "DevOps"
+        git config --global user.email "DevOps@users.noreply.github.com"
+        git commit -am "Bumping version to ${{ github.event.inputs.bump_version }} (${{ env.CURRENT_VERSION }} to ${{ env.BUMP_VERSION }})"
+        git push
 
     - name: End
       shell: bash
