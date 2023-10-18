@@ -1,0 +1,57 @@
+name: auto_bump_version
+
+on:
+  workflow_dispatch:
+    inputs:
+      name: 
+        type: choice
+        description: Bumping version to
+        options:
+        - premajor
+        - preminor
+        - patch
+
+jobs:
+  auto_bump_version:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - name: Checkout main branch of repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.9
+
+    - name: Install poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: 1.6.1
+
+    - name: Set environment variables
+      shell: bash
+      run: |
+        echo "PACKAGE_VERSION=$(poetry version --dry-run -s)" >> $GITHUB_ENV
+        echo "PRERELEASE_VERSION=$(poetry version premajor --dry-run -s)" >> $GITHUB_ENV
+        echo "RELEASE_VERSION=$(poetry version major --dry-run -s)" >> $GITHUB_ENV
+
+    - name: Bump package version to prelease version 
+      shell: bash
+      run: |
+        poetry self add poetry-bumpversion
+        poetry version premajor
+
+    - name: Commit and push to release branch
+      run: |
+        git config --global user.name "DevOps"
+        git config --global user.email "DevOps@users.noreply.github.com"
+        git checkout -b "release/${{ env.RELEASE_VERSION }}"
+        git commit -am "Auto-bump prelease from package version ${{ env.PACKAGE_VERSION }} to ${{ env.PRERELEASE_VERSION }}"
+        git push -u origin "release/${{ env.RELEASE_VERSION }}"
+
+    - name: End
+      shell: bash
+      run: |
+        echo "End"
+      
