@@ -47,7 +47,7 @@ jobs:
       run: |
         git config --global user.name "DevOps"
         git config --global user.email "DevOps@users.noreply.github.com"
-        git push -d origin "release/${{ env.RELEASE_VERSION }}"
+        #git push -d origin "release/${{ env.RELEASE_VERSION }}"
         git checkout -b "release/${{ env.RELEASE_VERSION }}"
         git commit -am "Bumping version to ${{ github.event.inputs.bump_version }} (${{ env.CURRENT_VERSION }} to ${{ env.BUMP_VERSION }})"
         git push -u origin "release/${{ env.RELEASE_VERSION }}"
