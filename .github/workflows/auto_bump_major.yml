@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-      - name: Checkout repository
+      - name: Checkout main branch of repository
         uses: actions/checkout@v3
 
       - name: Set up Python
@@ -21,17 +21,28 @@ jobs:
         with:
           version: 1.6.1
 
-      - name: Set Environment Variables
+      - name: Set environment variables
         shell: bash
         run: |
           echo "PACKAGE_VERSION=$(poetry version --dry-run -s)" >> $GITHUB_ENV
           echo "BUMP_MAJOR_VERSION=$(poetry version premajor --dry-run -s)" >> $GITHUB_ENV
 
-      - name: Create release branch
+      - name: Bump package version to premajor 
         shell: bash
         run: |
           poetry version premajor
-          echo "PACKAGE_VERSION=$(poetry version --dry-run -s)" >> $GITHUB_ENV
+          
+      - name: Checkout release branch of repository
+        uses: actions/checkout@v3      
+        with:
+          ref: release/${{ env.BUMP_MAJOR_VERSION }}
+        
+      - name: Commit and push 
+        run: |
+          git config --global user.name 'DevOps'
+          git config --global user.email 'DevOps@users.noreply.github.com'
+          git commit -am "Auto-bump premajor from package version ${{ env.PACKAGE_VERSION }} to ${{ env.BUMP_MAJOR_VERSION }}"
+          git push
 
       - name: End
         shell: bash
