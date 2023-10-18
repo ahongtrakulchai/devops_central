@@ -27,6 +27,12 @@ jobs:
           echo "PACKAGE_VERSION=$(poetry version --dry-run -s)" >> $GITHUB_ENV
           echo "BUMP_MAJOR_VERSION=$(poetry version major --dry-run -s)" >> $GITHUB_ENV
 
+      - name: Create release branch
+        shell: bash
+        run: |
+          poetry version major
+          echo "PACKAGE_VERSION=$(poetry version --dry-run -s)" >> $GITHUB_ENV
+
       - name: End
         shell: bash
         run: |
