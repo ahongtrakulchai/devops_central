@@ -25,9 +25,10 @@ jobs:
         shell: bash
         run: |
           echo "PACKAGE_VERSION=$(poetry version --dry-run -s)" >> $GITHUB_ENV
-          echo "BUMP_MAJOR_VERSION=$(poetry version premajor --dry-run -s)" >> $GITHUB_ENV
+          echo "PRERELEASE_VERSION=$(poetry version premajor --dry-run -s)" >> $GITHUB_ENV
+          echo "RELEASE_VERSION=$(poetry version major --dry-run -s)" >> $GITHUB_ENV
 
-      - name: Bump package version to premajor 
+      - name: Bump package version to prelease version 
         shell: bash
         run: |
           poetry version premajor
@@ -36,9 +37,9 @@ jobs:
         run: |
           git config --global user.name "DevOps"
           git config --global user.email "DevOps@users.noreply.github.com"
-          git checkout -b "release/${{ env.BUMP_MAJOR_VERSION }}"
-          git commit -am "Auto-bump premajor from package version ${{ env.PACKAGE_VERSION }} to ${{ env.BUMP_MAJOR_VERSION }}"
-          git push
+          git checkout -b "release/${{ env.RELEASE_VERSION }}"
+          git commit -am "Auto-bump prelease from package version ${{ env.PACKAGE_VERSION }} to ${{ env.PRERELEASE_VERSION }}"
+          git push -u origin "release/${{ env.RELEASE_VERSION }}"
 
       - name: End
         shell: bash
